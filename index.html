@@ -1,76 +1,101 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <title>ESMP - Energy Spotmarkt Prices</title>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse-Tool</title>
 
-        <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
-        <link rel="icon" type="image/svg+xml" href="../root/images/lightning.svg">
-        <link rel="stylesheet" href="../root/css/stylesheet.css">
-        <script src="../root/js/scripts.js"></script>
-    </head>
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+    <link rel="icon" type="image/svg+xml" href="../root/images/lightning.svg">
+    <link rel="stylesheet" href="../root/css/stylesheet.css">
+    <script src="../root/js/scripts.js"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    {% include '/root/header.html'%}
 
-    <body>
-        {% include '/root/header.html'%}
+    <main>
+        <section>
+            <h1>Analyse-Tool</h1>
+        </section>
 
-
-        <main>
-            <section class="image-hero">
-                <img src="../root/images/core_view.png" alt="Landing Page Image" class="hero-image"/>
-                
-                <div class="overlay">
-                    <h1>Entdecken Sie die Zukunft des Energiemarktes</h1>
-                    <p class="subtitle">Nutzen Sie unsere fortschrittlichen Analyse-Tools 
-                        und präzisen Preisprognosen, um fundierte Entscheidungen 
-                        zu treffen und Ihre Energiehandelsstrategien zu optimieren.</p>
+        <section>
+            <div>
+                <label for="dateInput">Date:</label>
+                <input type="date" id="dateInput" name="date" placeholder="2025-10-01" value="{{ selected_date }}">
+                <button onclick="loadData()">Show</button>
+            </div>
+        </section>
+        <section>
+            
+            <div>
+                <h2 id="chartTitle">Diagramm für {{ selected_date or '' }} </h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="stromChart"></canvas>
+            </div>
+            <div class="options-section">
+                <div class="cb-group">
+                    <table>
+                        <tr>
+                            <td>
+                                <div>
+                                    <input type="checkbox" id="cb_dayaverage" class="hidden-cb">
+                                    <label for="cb_dayaverage" class="cb">AVG Day</label>
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <label>Comparison Day</label>
+                                    <input type="date" id="comparison_dateInput" name="date" placeholder="2025-10-01" value="{{ selected_date}}"></i>
+                                    <button onclick="comparisonDay()">Show</button>
+                                    <button onclick="">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div>
+                                    <input type="checkbox" id="cb_workweekavg" class="hidden-cb">
+                                    <label for="cb_workweekavg" class="cb">AVG Working Days</label>
+                                </div>
+                            </td>
+                            <td>
+                                <i>
+                                    <label>AVG on Date</label>
+                                    <input type="date" id="avgOnDate_dateInput" name="date" placeholder="2025-10-01" value="{{ selected_date}}"></i>
+                                    <button onclick="get_avgOnDate()">Show</button>
+                                    <button onclick="">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>                                
+                                <div>
+                                    <input type="checkbox" id="cb_lastyear" class="hidden-cb">
+                                    <label for="cb_lastyear" class="cb">previos Year (intervall)</label>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div>
+                                    <input type="checkbox" id="cb_workweekaverage" class="hidden-cb">
+                                    <label for="cb_workweekaverage" class="cb">AVG Working Days (intervall)</label>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
-
-                <div class="overlay-buttons">
-                    <button class="btn-primary">
-                        <a href="/root/analyse.html">Jetzt starten</a>
-                    </button>
-                    <button class="btn-secondary">
-                        Mehr erfahren
-                    </button>
-                </div>
-            </section>
-
-            <section>
-                <div>
-                    <h2>Überblick über ESMP</h2>
-                    <p>Unsere Plattform bietet umfassende Analysen und Einblicke in den 
-                        Energiemarkt, um Ihnen zu helfen, fundierte Entscheidungen zu treffen.</p>
-                </div>
-            </section>
-            <section class="cards-section">
-                <div class="cards">
-                    <article class="card">
-                        <img src="../static/images/data_frame.svg" alt="Datenanalyse" class="card-image"\>
-                        <h3 class="card-title"> Detaillierte Marktanalysen</h3>
-                        <p class="card-text">Erhalten Sie tiefgehende Einblicke in Markttrends und -muster 
-                            durch unsere fortschrittlichen Analysewerkzeuge.</p>
-                    </article>
-
-                    <article class="card">
-                        <img src="../static/images/clock.svg" alt="Echtzeit-Daten" class="card-image"\>
-                        <h3 class="card-title">Echtzeit-Daten</h3>
-                        <p class="card-text">Verfolgen Sie Marktbewegungen in Echtzeit und reagieren Sie schnell 
-                            auf Veränderungen.</p>
-                    </article>
-
-                    <article class="card">
-                        <img src="../static/images/shield.svg" alt="Sichere Plattform" class="card-image"\>
-                        <h3 class="card-title">Sichere und zuverlässige Plattform</h3>
-                        <p class="card-text">Vertrauen Sie auf unsere sichere Plattform, die Ihre Daten schützt 
-                            und zuverlässige Informationen liefert.</p>
-                    </article>
-                </div>
-
-            </section>
-
-            {% include '/root/footer.html'%}
-        </main>
-    </body>
+            </div>
+            <div>
+                <script src="../static/js/analysis.js"></script>
+            </div>
+        </section>
+    </main>
+    
+    {% include '/root/footer.html'%}
+    
+</body>
 </html>
-
